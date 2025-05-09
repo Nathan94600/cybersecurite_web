@@ -88,7 +88,7 @@
     $conn = new mysqli($env["SERVERNAME"], $env["USERNAME"], $env["PASSWORD"]);
     ?>
 
-    <form action="/" method="post">
+    <form action="index.php" method="post">
         <input type="text" name="comment" placeholder="Ajouter un post..." required>
         <button type="submit">Ajouter</button>
     </form>
@@ -110,7 +110,7 @@
             while ($row = $result->fetch_assoc()) {
                 echo "<div class='comment'>";
                 echo "<div class='id'>#{$row["id"]}</div>";
-                echo "<div class='content'>" . $row["content"] . "</div>";
+                echo "<div class='content'>" . htmlspecialchars($row["content"], ENT_QUOTES, 'UTF-8') . "</div>";
                 echo "</div>";
             }
         } else {
