@@ -1,3 +1,11 @@
+<?php
+$request_uri = $_SERVER['REQUEST_URI'];
+
+if (preg_match('/\.env$/', $request_uri)) {
+    http_response_code(403);
+    exit('Accès interdit.');
+}
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
