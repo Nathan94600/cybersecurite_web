@@ -58,7 +58,7 @@
     </style>
 </head>
 <body>
-    <form action="/" method="post">
+    <form action="index.php" method="post">
         <h2 style="text-align:center;">Connexion</h2>
         <input type="text" name="email" placeholder="Email" required>
         <input type="password" name="password" placeholder="Mot de passe" required>
@@ -72,8 +72,16 @@
             if ($_POST["email"] && $_POST["password"]) {
                 $sql = "USE {$env["DATABASE"]}";
                 $conn->query($sql);
-                $sql = "SELECT * FROM user WHERE email='{$_POST["email"]}' AND password='{$_POST["password"]}'";
-                $result = $conn->query($sql);
+                $stmt = $conn->prepare("SELECT * FROM user WHERE email = ? AND password = ?");
+
+                // Lier les paramètres
+                $stmt->bind_param("ss", $_POST['email'], $_POST['password']);
+
+                // Exécuter la requête
+                $stmt->execute();
+
+                // Obtenir les résultats
+                $result = $stmt->get_result();
 
                 if ($result->num_rows > 0) {
                     header('Location: dashboard.php');
