@@ -1,3 +1,11 @@
+<?php
+session_start();
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+$a = rand(1, 9);
+$b = rand(1, 9);
+    $_SESSION['captcha_result'] = $a + $b;
+}
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -58,14 +66,11 @@
     </style>
 </head>
 <body>
-    <form action="/" method="post">
-        <h2 style="text-align:center;">Connexion</h2>
-        <input type="text" name="email" placeholder="Email" required>
-        <input type="password" name="password" placeholder="Mot de passe" required>
-        <button type="submit">Se connecter</button>
-
-        <?php
+            <?php
         if ($_SERVER["REQUEST_METHOD"] === "POST") {
+            if (!isset($_POST['captcha']) || (int)$_POST['captcha'] !== $_SESSION['captcha_result']) {
+                die("CAPTCHA incorrect. Veuillez réessayer.");
+            }
             $env = parse_ini_file('.env');
             $conn = new mysqli($env["SERVERNAME"], $env["USERNAME"], $env["PASSWORD"]);
 
@@ -87,6 +92,15 @@
             $conn->close();
         }
         ?>
+    <form action="index.php" method="post">
+        <h2 style="text-align:center;">Connexion</h2>
+        <?php if (isset($a) && isset($b)) { ?>
+            <label>Résolvez : <?php echo "$a + $b = ?"; ?></label><br>
+        <?php } ?>
+        <input type="text" name="captcha" required><br>
+        <input type="text" name="email" placeholder="Email" required>
+        <input type="password" name="password" placeholder="Mot de passe" required>
+        <button type="submit">Se connecter</button>
     </form>
 </body>
 </html>
