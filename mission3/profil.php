@@ -95,10 +95,19 @@
         <h1>Mon Profil</h1>
 
         <?php
+        session_start();
+
+        // Génération du token CSRF s'il n'existe pas encore
+        if (!isset($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        }
         $env = parse_ini_file('.env');
         $conn = new mysqli($env["SERVERNAME"], $env["USERNAME"], $env["PASSWORD"], $env["DATABASE"]);
 
         if ($_SERVER["REQUEST_METHOD"] === "POST") {
+            if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+            die("Requête CSRF invalide");
+            }
             $sql = "DELETE FROM `user` WHERE id={$_GET['id']}";
             if ($conn->query($sql) === TRUE) {
                 echo "<div class='success'>Votre compte a été supprimé avec succès.</div>";
@@ -132,6 +141,7 @@
         ?>
 
         <form method="POST">
+            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
             <button type="submit">🗑️ Supprimer mon compte</button>
         </form>
     </div>
